@@ -2,6 +2,7 @@ package validator
 
 import (
 	"log"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -36,6 +37,16 @@ func NotBlank(value string) bool {
 
 func MaxChars(value string, num int) bool {
 	return utf8.RuneCountInString(value) <= num
+}
+
+func MinChars(value string, num int) bool {
+	return utf8.RuneCountInString(value) >= num
+}
+
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+func Matches(value string, rx *regexp.Regexp) bool {
+	return rx.MatchString(value)
 }
 
 func PermittedInt(value int, permittedValues ...int) bool {
