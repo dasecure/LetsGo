@@ -1,9 +1,56 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
+
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: false,
+		Path:     "/",
+		Secure:   true,
+	})
+	return csrfHandler
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// log.Println("im authenticated.. mw entry")
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+		// log.Printf("im authenticated.. id: %d", id)
+		if id == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
+		exists, err := app.users.Exists(id)
+		if err != nil {
+			app.serveError(w, err)
+			return
+		}
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+		// log.Println("im authenticated.. mw exit")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.isAuthenticated(r) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+		w.Header().Add("Cache-Control", "no-store")
+		next.ServeHTTP(w, r)
+	})
+}
 
 // middleware to add secure headers
 func secureHeaders(next http.Handler) http.Handler {
