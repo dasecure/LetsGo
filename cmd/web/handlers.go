@@ -333,7 +333,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// if strings.TrimSpace(form.Content) == "" {
 	// 	form.FieldErrors["content"] = "This field cannot be empty"
 	// }
-	form.CheckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "This field must be 1, 7 or 365")
+	form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "This field must be 1, 7 or 365")
 	// if expires != 1 && expires != 7 && expires != 365 {
 	// 	form.FieldErrors["expires"] = "This field must be 1, 7 or 365"
 	// }
