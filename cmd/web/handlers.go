@@ -19,6 +19,10 @@ type userSignForm struct {
 	validator.Validator `form:"-"`
 }
 
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 // user authentication
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
@@ -129,7 +133,7 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 		app.serveError(w, err)
 		return
 	}
-	app.sessionManager.Remove(r.Context(), "AuthenticatedUserID")
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
 	app.sessionManager.Put(r.Context(), "flash", "You are now logged out")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
