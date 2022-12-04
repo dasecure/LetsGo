@@ -18,17 +18,20 @@ import (
 )
 
 type application struct {
-	errorLog       *log.Logger
-	infoLog        *log.Logger
-	snippets       *models.SnippetModel
-	users          *models.UserModel
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	// snippets       *models.SnippetModel
+	snippets       models.SnippetModelInterface
+	users          models.UserModelInterface
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
+	debug          bool
 }
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP port address")
+	debug := flag.Bool("debug", false, "Enable debug mode")
 	dsn := flag.String("dsn", "web:pass@tcp(localhost:3306)/snippetbox?parseTime=true", "MySQL datasource name")
 	flag.Parse()
 
@@ -61,6 +64,7 @@ func main() {
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		debug:          *debug,
 	}
 
 	// mux := http.NewServeMux()

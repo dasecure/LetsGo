@@ -19,7 +19,7 @@ func (app *application) routes() http.Handler {
 	// fileServer := http.FileServer(http.Dir("./ui/static/"))
 	fileServer := http.FileServer(http.FS(ui.Files))
 
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
 	//this is where session gets checked for validity
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 	protected := dynamic.Append(app.requireAuthentication)
 	router.HandlerFunc(http.MethodGet, "/ping", ping)
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/about", dynamic.ThenFunc(app.about))
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(app.snippetView))
 	router.Handler(http.MethodGet, "/snippet/create", protected.ThenFunc(app.snippetCreate))
 	router.Handler(http.MethodPost, "/snippet/create", protected.ThenFunc(app.snippetCreatePost))

@@ -140,6 +140,15 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintln(w, "Logout the user")
 }
 
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/about" {
+		http.NotFound(w, r)
+		return
+	}
+	data := app.newTemplateData(r)
+	app.render(w, http.StatusOK, "about.tmpl", data)
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
